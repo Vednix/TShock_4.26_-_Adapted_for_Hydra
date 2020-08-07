@@ -1517,6 +1517,9 @@ namespace TShockAPI
 
 		private static bool HandleConnecting(GetDataHandlerArgs args)
 		{
+			if (TShock.UsingHydra)
+				return false;
+
 			var user = TShock.Users.GetUserByName(args.Player.Name);
 			args.Player.DataWhenJoined = new PlayerData(args.Player);
 			args.Player.DataWhenJoined.CopyCharacter(args.Player);

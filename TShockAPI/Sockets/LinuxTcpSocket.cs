@@ -112,11 +112,15 @@ namespace TShockAPI.Sockets
 		void ISocket.AsyncSend(byte[] data, int offset, int size, SocketSendCallback callback, object state)
 		{
 			byte[] array = LegacyNetBufferPool.RequestBuffer(data, offset, size);
-			this._connection.GetStream().BeginWrite(array, 0, size, new AsyncCallback(this.SendCallback), new object[]
+			try
 			{
+				this._connection.GetStream().BeginWrite(array, 0, size, new AsyncCallback(this.SendCallback), new object[]
+				{
 				new Tuple<SocketSendCallback, object>(callback, state),
 				array
-			});
+				});
+            }
+            catch { }
 		}
 
 		void ISocket.AsyncReceive(byte[] data, int offset, int size, SocketReceiveCallback callback, object state)

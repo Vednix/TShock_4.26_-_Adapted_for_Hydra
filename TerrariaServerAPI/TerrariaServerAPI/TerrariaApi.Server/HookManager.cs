@@ -419,6 +419,7 @@ namespace TerrariaApi.Server
 							using (var reader = new BinaryReader(stream))
 							{
 								ushort moduleId = reader.ReadUInt16();
+
 								//LoadNetModule is now used for sending chat text.
 								//Read the module ID to determine if this is in fact the text module
 								if (moduleId == Terraria.Net.NetManager.Instance.GetId<Terraria.GameContent.NetModules.NetTextModule>())

@@ -54,6 +54,7 @@ namespace TShockAPI
 	[ApiVersion(2, 1)]
 	public class TShock : TerrariaPlugin
 	{
+		public static bool UsingHydra { get; internal set; }
 		/// <summary>VersionNum - The version number the TerrariaAPI will return back to the API. We just use the Assembly info.</summary>
 		public static readonly Version VersionNum = Assembly.GetExecutingAssembly().GetName().Version;
 		/// <summary>VersionCodename - The version codename is displayed when the server starts. Inspired by software codenames conventions.</summary>
@@ -187,6 +188,11 @@ namespace TShockAPI
 		[SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands")]
 		public override void Initialize()
 		{
+			Assembly[] assems = AppDomain.CurrentDomain.GetAssemblies();
+			foreach (Assembly a in assems)
+				if (a.FullName.Contains("Hydra.Initializer"))
+					UsingHydra = true;
+
 			string logFilename;
 			string logPathSetupWarning;
 
@@ -1365,7 +1371,7 @@ namespace TShockAPI
 		/// <param name="args">args - The LeaveEventArgs object.</param>
 		private void OnLeave(LeaveEventArgs args)
 		{
-			if (args.Who >= Players.Length || args.Who < 0)
+			if (args.Who >= Players.Length || args.Who < 0 || TShock.UsingHydra)
 			{
 				//Something not right has happened
 				return;
@@ -1613,6 +1619,8 @@ namespace TShockAPI
 		/// <param name="args">args - The GreetPlayerEventArgs object.</param>
 		private void OnGreetPlayer(GreetPlayerEventArgs args)
 		{
+			if (TShock.UsingHydra)
+				return;
 			var player = Players[args.Who];
 			if (player == null)
 			{

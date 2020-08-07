@@ -49,6 +49,9 @@ namespace TShockAPI.ServerSideCharacters
 		[Description("Enable server side characters, This stops the client from saving character data! EXPERIMENTAL!!!!!")]
 		public bool Enabled = false;
 
+		[Description("in case you use the same database and want to separate the SSC data, change to a different ID on each server.")]
+		public int tsSSCServerID = -1;
+
 		[Description("How often SSC should save, in minutes.")]
 		public int ServerSideCharacterSave = 5;
 

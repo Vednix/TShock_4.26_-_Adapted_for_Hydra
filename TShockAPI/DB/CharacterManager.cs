@@ -29,12 +29,11 @@ namespace TShockAPI.DB
 	public class CharacterManager
 	{
 		public IDbConnection database;
-
+		public int tsSSCServerID = TShock.ServerSideCharacterConfig.tsSSCServerID;
 		public CharacterManager(IDbConnection db)
 		{
 			database = db;
-
-			var table = new SqlTable("tsCharacter",
+			var table = new SqlTable($"tsCharacter{(tsSSCServerID == -1 ? "" : $"_{tsSSCServerID}")}",
 			                         new SqlColumn("Account", MySqlDbType.Int32) {Primary = true},
 									 new SqlColumn("Health", MySqlDbType.Int32),
 			                         new SqlColumn("MaxHealth", MySqlDbType.Int32),
@@ -70,7 +69,7 @@ namespace TShockAPI.DB
 
 			try
 			{
-				using (var reader = database.QueryReader("SELECT * FROM tsCharacter WHERE Account=@0", acctid))
+				using (var reader = database.QueryReader($"SELECT * FROM tsCharacter{(tsSSCServerID == -1 ? "" : $"_{tsSSCServerID}")} WHERE Account=@0", acctid))
 				{
 					if (reader.Read())
 					{
@@ -131,7 +130,7 @@ namespace TShockAPI.DB
 			string initialItems = String.Join("~", items.Take(NetItem.MaxInventory));
 			try
 			{
-				database.Query("INSERT INTO tsCharacter (Account, Health, MaxHealth, Mana, MaxMana, Inventory, spawnX, spawnY, questsCompleted) VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8);",
+				database.Query($"INSERT INTO tsCharacter{(tsSSCServerID == -1 ? "" : $"_{tsSSCServerID}")} (Account, Health, MaxHealth, Mana, MaxMana, Inventory, spawnX, spawnY, questsCompleted) VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8);",
 							   user.ID,
 							   TShock.ServerSideCharacterConfig.StartingHealth,
 							   TShock.ServerSideCharacterConfig.StartingHealth,
@@ -174,7 +173,7 @@ namespace TShockAPI.DB
 				try
 				{
 					database.Query(
-						"INSERT INTO tsCharacter (Account, Health, MaxHealth, Mana, MaxMana, Inventory, extraSlot, spawnX, spawnY, skinVariant, hair, hairDye, hairColor, pantsColor, shirtColor, underShirtColor, shoeColor, hideVisuals, skinColor, eyeColor, questsCompleted) VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8, @9, @10, @11, @12, @13, @14, @15, @16, @17, @18, @19, @20);",
+						$"INSERT INTO tsCharacter{(tsSSCServerID == -1 ? "" : $"_{tsSSCServerID}")} (Account, Health, MaxHealth, Mana, MaxMana, Inventory, extraSlot, spawnX, spawnY, skinVariant, hair, hairDye, hairColor, pantsColor, shirtColor, underShirtColor, shoeColor, hideVisuals, skinColor, eyeColor, questsCompleted) VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8, @9, @10, @11, @12, @13, @14, @15, @16, @17, @18, @19, @20);",
 						player.User.ID, playerData.health, playerData.maxHealth, playerData.mana, playerData.maxMana, String.Join("~", playerData.inventory), playerData.extraSlot, player.TPlayer.SpawnX, player.TPlayer.SpawnY, player.TPlayer.skinVariant, player.TPlayer.hair, player.TPlayer.hairDye, TShock.Utils.EncodeColor(player.TPlayer.hairColor), TShock.Utils.EncodeColor(player.TPlayer.pantsColor),TShock.Utils.EncodeColor(player.TPlayer.shirtColor), TShock.Utils.EncodeColor(player.TPlayer.underShirtColor), TShock.Utils.EncodeColor(player.TPlayer.shoeColor), TShock.Utils.EncodeBoolArray(player.TPlayer.hideVisual), TShock.Utils.EncodeColor(player.TPlayer.skinColor),TShock.Utils.EncodeColor(player.TPlayer.eyeColor), player.TPlayer.anglerQuestsFinished);
 					return true;
 				}
@@ -188,7 +187,7 @@ namespace TShockAPI.DB
 				try
 				{
 					database.Query(
-						"UPDATE tsCharacter SET Health = @0, MaxHealth = @1, Mana = @2, MaxMana = @3, Inventory = @4, spawnX = @6, spawnY = @7, hair = @8, hairDye = @9, hairColor = @10, pantsColor = @11, shirtColor = @12, underShirtColor = @13, shoeColor = @14, hideVisuals = @15, skinColor = @16, eyeColor = @17, questsCompleted = @18, skinVariant = @19, extraSlot = @20 WHERE Account = @5;",
+						$"UPDATE tsCharacter{(tsSSCServerID == -1 ? "" : $"_{tsSSCServerID}")} SET Health = @0, MaxHealth = @1, Mana = @2, MaxMana = @3, Inventory = @4, spawnX = @6, spawnY = @7, hair = @8, hairDye = @9, hairColor = @10, pantsColor = @11, shirtColor = @12, underShirtColor = @13, shoeColor = @14, hideVisuals = @15, skinColor = @16, eyeColor = @17, questsCompleted = @18, skinVariant = @19, extraSlot = @20 WHERE Account = @5;",
 						playerData.health, playerData.maxHealth, playerData.mana, playerData.maxMana, String.Join("~", playerData.inventory), player.User.ID, player.TPlayer.SpawnX, player.TPlayer.SpawnY, player.TPlayer.hair, player.TPlayer.hairDye, TShock.Utils.EncodeColor(player.TPlayer.hairColor), TShock.Utils.EncodeColor(player.TPlayer.pantsColor), TShock.Utils.EncodeColor(player.TPlayer.shirtColor), TShock.Utils.EncodeColor(player.TPlayer.underShirtColor), TShock.Utils.EncodeColor(player.TPlayer.shoeColor), TShock.Utils.EncodeBoolArray(player.TPlayer.hideVisual), TShock.Utils.EncodeColor(player.TPlayer.skinColor), TShock.Utils.EncodeColor(player.TPlayer.eyeColor), player.TPlayer.anglerQuestsFinished, player.TPlayer.skinVariant, player.TPlayer.extraAccessory ? 1 : 0);
 					return true;
 				}
@@ -209,7 +208,7 @@ namespace TShockAPI.DB
 		{
 			try
 			{
-				database.Query("DELETE FROM tsCharacter WHERE Account = @0;", userid);
+				database.Query($"DELETE FROM tsCharacter{(tsSSCServerID == -1 ? "" : $"_{tsSSCServerID}")} WHERE Account = @0;", userid);
 				return true;
 			}
 			catch (Exception ex)
@@ -244,7 +243,7 @@ namespace TShockAPI.DB
 				try
 				{
 					database.Query(
-						"INSERT INTO tsCharacter (Account, Health, MaxHealth, Mana, MaxMana, Inventory, extraSlot, spawnX, spawnY, skinVariant, hair, hairDye, hairColor, pantsColor, shirtColor, underShirtColor, shoeColor, hideVisuals, skinColor, eyeColor, questsCompleted) VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8, @9, @10, @11, @12, @13, @14, @15, @16, @17, @18, @19, @20);",
+						$"INSERT INTO tsCharacter{(tsSSCServerID == -1 ? "" : $"_{tsSSCServerID}")} (Account, Health, MaxHealth, Mana, MaxMana, Inventory, extraSlot, spawnX, spawnY, skinVariant, hair, hairDye, hairColor, pantsColor, shirtColor, underShirtColor, shoeColor, hideVisuals, skinColor, eyeColor, questsCompleted) VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8, @9, @10, @11, @12, @13, @14, @15, @16, @17, @18, @19, @20);",
 						player.User.ID,
 						playerData.health,
 						playerData.maxHealth,
@@ -278,7 +277,7 @@ namespace TShockAPI.DB
 				try
 				{
 					database.Query(
-						"UPDATE tsCharacter SET Health = @0, MaxHealth = @1, Mana = @2, MaxMana = @3, Inventory = @4, spawnX = @6, spawnY = @7, hair = @8, hairDye = @9, hairColor = @10, pantsColor = @11, shirtColor = @12, underShirtColor = @13, shoeColor = @14, hideVisuals = @15, skinColor = @16, eyeColor = @17, questsCompleted = @18, skinVariant = @19, extraSlot = @20 WHERE Account = @5;",
+						$"UPDATE tsCharacter{(tsSSCServerID == -1 ? "" : $"_{tsSSCServerID}")} SET Health = @0, MaxHealth = @1, Mana = @2, MaxMana = @3, Inventory = @4, spawnX = @6, spawnY = @7, hair = @8, hairDye = @9, hairColor = @10, pantsColor = @11, shirtColor = @12, underShirtColor = @13, shoeColor = @14, hideVisuals = @15, skinColor = @16, eyeColor = @17, questsCompleted = @18, skinVariant = @19, extraSlot = @20 WHERE Account = @5;",
 						playerData.health,
 						playerData.maxHealth,
 						playerData.mana,
